@@ -1,0 +1,48 @@
+{% extends 'main/base.html' %}
+{% block title %}
+  Login
+{% endblock %}
+
+{% block content %}
+  <div class="login-container">
+    <h2>Login to Your Account</h2>
+    
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    
+    <form method="POST" class="login-form">
+      {% csrf_token %}
+      
+      {% for field in form %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.errors %}
+            <div class="error-message">
+              {% for error in field.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if field.help_text %}
+            <small class="help-text">{{ field.help_text }}</small>
+          {% endif %}
+        </div>
+      {% endfor %}
+      
+      <button type="submit" class="login-button">Login</button>
+    </form>
+    
+    <div class="register-links">
+      <p>Don't have an account?</p>
+      <a href="{% url 'register' %}" class="register-link">Register here</a>
+    </div>
+  </div>
+{% endblock %} 

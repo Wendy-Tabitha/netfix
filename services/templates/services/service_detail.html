@@ -1,0 +1,108 @@
+{% extends "services/base.html" %}
+
+{% block service_content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title">{{ service.name }}</h2>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-primary me-2">
+                            <i class="fas fa-tools me-1"></i> {{ service.field }}
+                        </span>
+                        <span class="text-muted">
+                            <i class="fas fa-building me-1"></i> {{ service.company.user.username }}
+                        </span>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="fas fa-dollar-sign me-1"></i>
+                                <strong>Price per hour:</strong> ${{ service.price_hour }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="fas fa-star me-1"></i>
+                                <strong>Rating:</strong> {{ service.rating }}/5
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Description</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ service.description }}</p>
+                        </div>
+                    </div>
+
+                    <div class="text-muted small">
+                        <i class="fas fa-calendar me-1"></i> Created: {{ service.created_at|date:"F d, Y" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            {% if is_customer %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Request Service</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        {{ field.help_text }}
+                                    </div>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="alert alert-danger mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <div class="alert alert-info">
+                            <p class="mb-0">
+                                <i class="fas fa-calculator me-1"></i>
+                                Estimated cost: ${{ service.price_hour }} × hours needed
+                            </p>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Submit Request
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <p class="mb-0">
+                        <i class="fas fa-user-lock me-1"></i>
+                        Please <a href="{% url 'login' %}">login</a> as a customer to request this service.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
