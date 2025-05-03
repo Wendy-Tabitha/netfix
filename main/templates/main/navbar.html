@@ -2,19 +2,13 @@
     <ul>
         <li><a href="/">Home</a></li>
         <li>
-            <a href="/services/">Services</a>
+            <a href="{% url 'service_list' %}">Services</a>
             <ul>
-                <li><a href="/services/air-conditioner">Air Conditioner</a></li>
-                <li><a href="/services/carpentry">Carpentry</a></li>
-                <li><a href="/services/electricity">Electricity</a></li>
-                <li><a href="/services/gardening">Gardening</a></li>
-                <li><a href="/services/home-machines">Home Machines</a></li>
-                <li><a href="/services/house-keeping">House Keeping</a></li>
-                <li><a href="/services/interior-design">Interior Design</a></li>
-                <li><a href="/services/locks">Locks</a></li>
-                <li><a href="/services/painting">Painting</a></li>
-                <li><a href="/services/plumbing">Plumbing</a></li>
-                <li><a href="/services/water-heaters">Water Heaters</a></li>
+                {% for field in available_fields %}
+                    <li><a href="{% url 'service_field' field|slugify %}">{{ field }}</a></li>
+                {% empty %}
+                    <li><a href="{% url 'service_list' %}">No services available yet</a></li>
+                {% endfor %}
             </ul>
         </li>
         {% if user.is_authenticated %}
