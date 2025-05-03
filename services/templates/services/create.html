@@ -4,35 +4,110 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="mb-0">Create New Service</h3>
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create New Service</h3>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
-                        {% for field in form %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                {% if field.name == 'field' %}
-                                    <div class="form-control bg-light">{{ field.choices.0.0 }}</div>
-                                    <input type="hidden" name="{{ field.html_name }}" value="{{ field.choices.0.0 }}">
-                                {% else %}
-                                    {{ field }}
-                                {% endif %}
-                                {% if field.help_text %}
-                                    <div class="form-text">{{ field.help_text }}</div>
-                                {% endif %}
-                                {% if field.errors %}
-                                    <div class="alert alert-danger">
-                                        {{ field.errors }}
-                                    </div>
-                                {% endif %}
+                        
+                        <!-- Service Name -->
+                        <div class="mb-4">
+                            <label for="id_name" class="form-label">
+                                <i class="fas fa-tag me-2"></i>Service Name
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="name" 
+                                   id="id_name" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="Enter service name"
+                                   required>
+                            <div class="invalid-feedback">
+                                Please provide a service name.
                             </div>
-                        {% endfor %}
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Create Service</button>
-                            <a href="{% url 'service_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+
+                        <!-- Service Description -->
+                        <div class="mb-4">
+                            <label for="id_description" class="form-label">
+                                <i class="fas fa-align-left me-2"></i>Description
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="description" 
+                                      id="id_description" 
+                                      class="form-control" 
+                                      rows="4" 
+                                      placeholder="Describe your service in detail"
+                                      required></textarea>
+                            <div class="invalid-feedback">
+                                Please provide a service description.
+                            </div>
+                        </div>
+
+                        <!-- Price per Hour -->
+                        <div class="mb-4">
+                            <label for="id_price_hour" class="form-label">
+                                <i class="fas fa-dollar-sign me-2"></i>Price per Hour
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" 
+                                       name="price_hour" 
+                                       id="id_price_hour" 
+                                       class="form-control" 
+                                       placeholder="0.00" 
+                                       step="0.01" 
+                                       min="0"
+                                       required>
+                            </div>
+                            <div class="invalid-feedback">
+                                Please provide a valid price per hour.
+                            </div>
+                        </div>
+
+                        <!-- Service Field -->
+                        <div class="mb-4">
+                            <label for="id_field" class="form-label">
+                                <i class="fas fa-tools me-2"></i>Service Field
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="field-select-container">
+                                <select name="field" 
+                                        id="id_field" 
+                                        class="form-select field-select" 
+                                        required>
+                                    <option value="">Select a service field</option>
+                                    {% for value, label in field_choices %}
+                                        <option value="{{ value }}" {% if value == company_field %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="invalid-feedback">
+                                Please select a service field.
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Please correct the errors below.
+                            </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>Create Service
+                            </button>
+                            <a href="{% url 'service_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -40,4 +115,117 @@
         </div>
     </div>
 </div>
+
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+    
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+    }
+
+    /* Field Select Styling */
+    .field-select-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .field-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+        cursor: pointer;
+    }
+
+    .field-select:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .field-select option {
+        padding: 0.5rem;
+        background-color: white;
+        color: #495057;
+    }
+
+    .field-select option:checked {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .field-select option:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .field-select {
+            font-size: 16px;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+        }
+    }
+</style>
+
+<script>
+    // Form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+
+    // Ensure field is selected
+    document.addEventListener('DOMContentLoaded', function() {
+        const fieldSelect = document.getElementById('id_field');
+        if (fieldSelect) {
+            fieldSelect.addEventListener('change', function() {
+                if (this.value === '') {
+                    this.setCustomValidity('Please select a service field');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        }
+    });
+</script>
 {% endblock %} 

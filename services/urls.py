@@ -7,6 +7,6 @@ urlpatterns = [
     path('<int:pk>/', v.service_detail, name='service_detail'),
     path('<int:pk>/edit/', v.edit_service, name='edit_service'),
     path('<int:pk>/delete/', v.delete_service, name='delete_service'),
-    path('field/<slug:field>/', v.service_field, name='service_field'),
+    path('field/<str:field>/', v.service_field, name='service_field'),
     path('my-requests/', v.my_requests, name='my_requests'),
 ]

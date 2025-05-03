@@ -25,14 +25,8 @@ class CreateNewService(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Remove 'All in One' from choices if it exists
-        self.fields['field'].choices = [
-            choice for choice in Service.FIELD_CHOICES 
-            if choice[0] != 'All in One'
-        ]
-        # Make field read-only since it's forced to be the company's field
-        self.fields['field'].widget.attrs['readonly'] = True
-        self.fields['field'].widget.attrs['disabled'] = True
+        # Set the initial choices for the field dropdown
+        self.fields['field'].choices = [('', 'Select a service field')] + list(Service.FIELD_CHOICES)
 
 
 class RequestServiceForm(forms.Form):
