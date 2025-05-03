@@ -207,3 +207,55 @@ def delete_service(request, pk):
         return redirect('service_list')
     
     return redirect('service_detail', pk=pk)
+
+
+@login_required
+def company_requests(request):
+    # Check if user is a company
+    try:
+        company = Company.objects.get(user=request.user)
+    except Company.DoesNotExist:
+        messages.error(request, "Only companies can view service requests.")
+        return redirect('home')
+        
+    # Get all service requests for the company's services
+    service_requests = ServiceRequest.objects.filter(
+        service__company=company
+    ).select_related('service', 'user').order_by('-created_at')
+    
+    # Get search parameters
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+    
+    # Apply filters if provided
+    if search_query:
+        service_requests = service_requests.filter(
+            service__name__icontains=search_query
+        )
+    if status_filter:
+        service_requests = service_requests.filter(status=status_filter)
+    
+    return render(request, 'services/company_requests.html', {
+        'service_requests': service_requests,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'status_choices': ServiceRequest.STATUS_CHOICES
+    })
+
+
+@login_required
+def update_request_status(request, request_id, new_status):
+    try:
+        service_request = ServiceRequest.objects.get(id=request_id)
+        # Check if the user is the company that owns the service
+        if request.user != service_request.service.company.user:
+            messages.error(request, "You don't have permission to update this request.")
+            return redirect('home')
+            
+        service_request.status = new_status
+        service_request.save()
+        messages.success(request, f"Request status updated to {new_status}.")
+    except ServiceRequest.DoesNotExist:
+        messages.error(request, "Service request not found.")
+    
+    return redirect('company_requests')
