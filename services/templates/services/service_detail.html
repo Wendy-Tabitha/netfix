@@ -36,7 +36,14 @@
                             <h5 class="mb-0">Description</h5>
                         </div>
                         <div class="card-body">
-                            <p class="card-text">{{ service.description }}</p>
+                            {% if service.description %}
+                                <p class="card-text">{{ service.description }}</p>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    No description available for this service yet.
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -97,7 +104,7 @@
                 <div class="card-body text-center">
                     <p class="mb-0">
                         <i class="fas fa-user-lock me-1"></i>
-                        Please <a href="{% url 'login' %}">login</a> as a customer to request this service.
+                        Please <a href="{% url 'login_user' %}">login</a> as a customer to request this service.
                     </p>
                 </div>
             </div>

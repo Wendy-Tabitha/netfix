@@ -65,14 +65,34 @@ def create(request):
     else:
         form = CreateNewService()
 
-    return render(request, 'services/create.html', {'form': form})
+    return render(request, 'services/create.html', {
+        'form': form,
+        'company_field': company.field,
+        'field_choices': Service.FIELD_CHOICES
+    })
 
 
 def service_field(request, field):
-    # search for the service present in the url
+    # Convert the field parameter to match the format in the database
     field = field.replace('-', ' ').title()
+    
+    # Get all services for this field
     services = Service.objects.filter(field=field)
-    return render(request, 'services/service_list.html', {'services': services, 'field': field})
+    
+    # If no services found, show a message
+    if not services.exists():
+        messages.info(request, f'No services found in the {field} category.')
+        return redirect('service_list')
+    
+    # Get unique fields for filter dropdown
+    fields = Service.objects.values_list('field', flat=True).distinct()
+    
+    return render(request, 'services/service_list.html', {
+        'services': services,
+        'fields': fields,
+        'field_filter': field,
+        'search_query': ''
+    })
 
 
 def request_service(request, id):
@@ -81,27 +101,31 @@ def request_service(request, id):
 
 @login_required
 def service_detail(request, pk):
-    service = get_object_or_404(Service, pk=pk)
-    is_customer = hasattr(request.user, 'customer')
-    
-    if request.method == 'POST' and is_customer:
-        form = ServiceRequestForm(request.POST)
-        if form.is_valid():
-            service_request = form.save(commit=False)
-            service_request.service = service
-            service_request.user = request.user
-            service_request.total_cost = service.price_hour * service_request.service_time
-            service_request.save()
-            messages.success(request, 'Service request submitted successfully!')
-            return redirect('my_requests')
-    else:
-        form = ServiceRequestForm()
-    
-    return render(request, 'services/service_detail.html', {
-        'service': service,
-        'form': form,
-        'is_customer': is_customer
-    })
+    try:
+        service = Service.objects.get(pk=pk)
+        is_customer = hasattr(request.user, 'customer')
+        
+        if request.method == 'POST' and is_customer:
+            form = ServiceRequestForm(request.POST)
+            if form.is_valid():
+                service_request = form.save(commit=False)
+                service_request.service = service
+                service_request.user = request.user
+                service_request.total_cost = service.price_hour * service_request.service_time
+                service_request.save()
+                messages.success(request, 'Service request submitted successfully!')
+                return redirect('my_requests')
+        else:
+            form = ServiceRequestForm()
+        
+        return render(request, 'services/service_detail.html', {
+            'service': service,
+            'form': form,
+            'is_customer': is_customer
+        })
+    except Service.DoesNotExist:
+        messages.error(request, 'The requested service does not exist.')
+        return redirect('service_list')
 
 
 @login_required
