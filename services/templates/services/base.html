@@ -11,6 +11,9 @@
                         <a href="{% url 'service_list' %}" class="list-group-item list-group-item-action {% if not category %}active{% endif %}">
                             All Services
                         </a>
+                        <a href="{% url 'most_requested_services' %}" class="list-group-item list-group-item-action">
+                            Most Requested Services
+                        </a>
                         {% for cat in categories %}
                         <a href="{% url 'service_list' %}?category={{ cat.id }}" 
                            class="list-group-item list-group-item-action {% if category.id == cat.id %}active{% endif %}">

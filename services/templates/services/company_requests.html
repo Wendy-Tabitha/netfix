@@ -6,7 +6,7 @@
         <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h3 class="mb-0">My Service Requests</h3>
+                    <h3 class="mb-0">Service Requests</h3>
                 </div>
                 <div class="card-body">
                     <!-- Search and Filter Form -->
@@ -34,8 +34,7 @@
                                 <thead>
                                     <tr>
                                         <th>Service Name</th>
-                                        <th>Field</th>
-                                        <th>Company</th>
+                                        <th>Customer</th>
                                         <th>Address</th>
                                         <th>Service Time</th>
                                         <th>Total Cost</th>
@@ -44,14 +43,14 @@
                                         {% if most_requested %}
                                         <th>Total Requests</th>
                                         {% endif %}
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for request in service_requests %}
                                         <tr>
                                             <td>{{ request.service.name }}</td>
-                                            <td>{{ request.service.field }}</td>
-                                            <td>{{ request.service.company.user.username }}</td>
+                                            <td>{{ request.user.username }}</td>
                                             <td>{{ request.address }}</td>
                                             <td>{{ request.service_time }} hours</td>
                                             <td>${{ request.total_cost }}</td>
@@ -67,6 +66,23 @@
                                             {% if most_requested %}
                                             <td>Total Requests: {{ request.request_count }}</td>
                                             {% endif %}
+                                            <td>
+                                                {% if request.status == 'pending' %}
+                                                    <form method="post" action="{% url 'update_request_status' request.id 'accepted' %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                                    </form>
+                                                    <form method="post" action="{% url 'update_request_status' request.id 'rejected' %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                                    </form>
+                                                {% elif request.status == 'accepted' %}
+                                                    <form method="post" action="{% url 'update_request_status' request.id 'completed' %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-info btn-sm">Mark as Completed</button>
+                                                    </form>
+                                                {% endif %}
+                                            </td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -74,7 +90,7 @@
                         </div>
                     {% else %}
                         <div class="alert alert-info">
-                            <p class="mb-0">You haven't made any service requests yet.</p>
+                            <p class="mb-0">No service requests found.</p>
                         </div>
                     {% endif %}
                 </div>
