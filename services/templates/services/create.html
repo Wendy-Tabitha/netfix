@@ -75,17 +75,14 @@
                                 <span class="text-danger">*</span>
                             </label>
                             <div class="field-select-container">
-                                <select name="field" 
-                                        id="id_field" 
-                                        class="form-select field-select" 
-                                        required>
-                                    <option value="">Select a service field</option>
-                                    {% for value, label in field_choices %}
-                                        <option value="{{ value }}" {% if value == company_field %}selected{% endif %}>
-                                            {{ label }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
+                                {% if company_field == 'All in One' %}
+                                    {{ form.field }}
+                                {% else %}
+                                    <select name="field" id="id_field" class="form-control" disabled style="background-color: #f8f9fa;">
+                                        <option value="{{ company_field }}" selected>{{ company_field }}</option>
+                                    </select>
+                                    <input type="hidden" name="field" value="{{ company_field }}">
+                                {% endif %}
                             </div>
                             <div class="invalid-feedback">
                                 Please select a service field.
