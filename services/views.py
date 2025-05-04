@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import models
 
 from users.models import Company, Customer, User
 
@@ -16,12 +17,18 @@ def service_list(request):
     # Get search parameters
     search_query = request.GET.get('search', '')
     field_filter = request.GET.get('field', '')
+    most_requested = request.GET.get('most_requested') == 'on'
     
     # Apply filters if provided
     if search_query:
         services = services.filter(name__icontains=search_query)
     if field_filter:
         services = services.filter(field=field_filter)
+    if most_requested:
+        # Annotate services with request count and order by it
+        services = services.annotate(
+            request_count=models.Count('requests')
+        ).order_by('-request_count')
     
     # Get unique fields for filter dropdown
     fields = Service.objects.values_list('field', flat=True).distinct()
@@ -30,7 +37,8 @@ def service_list(request):
         'services': services,
         'fields': fields,
         'search_query': search_query,
-        'field_filter': field_filter
+        'field_filter': field_filter,
+        'most_requested': most_requested
     })
 
 
@@ -140,17 +148,24 @@ def my_requests(request):
     # Get search parameters
     search_query = request.GET.get('search', '')
     status_filter = request.GET.get('status', '')
+    most_requested = request.GET.get('most_requested') == 'on'
     
     # Apply filters if provided
     if search_query:
         service_requests = service_requests.filter(service__name__icontains=search_query)
     if status_filter:
         service_requests = service_requests.filter(status=status_filter)
+    if most_requested:
+        # Annotate services with request count and order by it
+        service_requests = service_requests.annotate(
+            request_count=models.Count('service__requests')
+        ).order_by('-request_count')
     
     return render(request, 'services/my_requests.html', {
         'service_requests': service_requests,
         'search_query': search_query,
         'status_filter': status_filter,
+        'most_requested': most_requested,
         'status_choices': ServiceRequest.STATUS_CHOICES
     })
 
@@ -226,6 +241,7 @@ def company_requests(request):
     # Get search parameters
     search_query = request.GET.get('search', '')
     status_filter = request.GET.get('status', '')
+    most_requested = request.GET.get('most_requested') == 'on'
     
     # Apply filters if provided
     if search_query:
@@ -234,11 +250,17 @@ def company_requests(request):
         )
     if status_filter:
         service_requests = service_requests.filter(status=status_filter)
+    if most_requested:
+        # Annotate services with request count and order by it
+        service_requests = service_requests.annotate(
+            request_count=models.Count('service__requests')
+        ).order_by('-request_count')
     
     return render(request, 'services/company_requests.html', {
         'service_requests': service_requests,
         'search_query': search_query,
         'status_filter': status_filter,
+        'most_requested': most_requested,
         'status_choices': ServiceRequest.STATUS_CHOICES
     })
 
@@ -259,3 +281,30 @@ def update_request_status(request, request_id, new_status):
         messages.error(request, "Service request not found.")
     
     return redirect('company_requests')
+
+
+def most_requested_services(request):
+    # Get all services annotated with request count and ordered by it
+    services = Service.objects.annotate(
+        request_count=models.Count('requests')
+    ).order_by('-request_count')
+    
+    # Get search parameters
+    search_query = request.GET.get('search', '')
+    field_filter = request.GET.get('field', '')
+    
+    # Apply filters if provided
+    if search_query:
+        services = services.filter(name__icontains=search_query)
+    if field_filter:
+        services = services.filter(field=field_filter)
+    
+    # Get unique fields for filter dropdown
+    fields = Service.objects.values_list('field', flat=True).distinct()
+    
+    return render(request, 'services/most_requested.html', {
+        'services': services,
+        'fields': fields,
+        'search_query': search_query,
+        'field_filter': field_filter
+    })

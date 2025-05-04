@@ -10,24 +10,22 @@
                 </div>
                 <div class="card-body">
                     <!-- Search and Filter Form -->
-                    <form method="get" class="mb-4">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <input type="text" name="search" class="form-control" placeholder="Search by service name..." value="{{ search_query }}">
+                    <div class="filters">
+                        <form method="get" class="filter-form">
+                            <input type="text" name="search" placeholder="Search requests..." value="{{ search_query }}">
+                            <select name="status">
+                                <option value="">All Statuses</option>
+                                {% for status, label in status_choices %}
+                                    <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="checkbox-filter">
+                                <input type="checkbox" name="most_requested" id="most_requested" {% if most_requested %}checked{% endif %}>
+                                <label for="most_requested">Most Requested</label>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <select name="status" class="form-control">
-                                    <option value="">All Statuses</option>
-                                    {% for status, label in status_choices %}
-                                        <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ label }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <button type="submit" class="btn btn-primary w-100">Filter</button>
-                            </div>
-                        </div>
-                    </form>
+                            <button type="submit">Filter</button>
+                        </form>
+                    </div>
 
                     <!-- Service Requests List -->
                     {% if service_requests %}
@@ -43,6 +41,9 @@
                                         <th>Total Cost</th>
                                         <th>Status</th>
                                         <th>Request Date</th>
+                                        {% if most_requested %}
+                                        <th>Total Requests</th>
+                                        {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -63,6 +64,9 @@
                                                 </span>
                                             </td>
                                             <td>{{ request.created_at|date:"F d, Y" }}</td>
+                                            {% if most_requested %}
+                                            <td>Total Requests: {{ request.request_count }}</td>
+                                            {% endif %}
                                         </tr>
                                     {% endfor %}
                                 </tbody>
