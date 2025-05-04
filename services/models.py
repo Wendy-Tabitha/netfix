@@ -7,6 +7,7 @@ from users.models import Company, Customer
 
 class Service(models.Model):
     FIELD_CHOICES = (
+        ('All in One', 'All in One'),
         ('Air Conditioner', 'Air Conditioner'),
         ('Carpentry', 'Carpentry'),
         ('Electricity', 'Electricity'),

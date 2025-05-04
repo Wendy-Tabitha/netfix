@@ -57,7 +57,7 @@ def create(request):
         return redirect('home')
 
     if request.method == 'POST':
-        form = CreateNewService(request.POST)
+        form = CreateNewService(request.POST, company_field=company.field)
         if form.is_valid():
             service = Service(
                 name=form.cleaned_data['name'],
@@ -71,12 +71,11 @@ def create(request):
             messages.success(request, "Service created successfully!")
             return redirect('service_detail', pk=service.id)
     else:
-        form = CreateNewService()
+        form = CreateNewService(company_field=company.field)
 
     return render(request, 'services/create.html', {
         'form': form,
-        'company_field': company.field,
-        'field_choices': Service.FIELD_CHOICES
+        'company_field': company.field
     })
 
 
