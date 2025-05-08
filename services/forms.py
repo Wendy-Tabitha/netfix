@@ -89,3 +89,14 @@ class ServiceRequestForm(forms.ModelForm):
             'message': 'Describe what you need help with',
             'address': 'Where should the service be performed?',
         }
+
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = Service
+        fields = ['name', 'description', 'price_hour', 'field']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'price_hour': forms.NumberInput(attrs={'class': 'form-control'}),
+            'field': forms.Select(attrs={'class': 'form-control'}),
+        }
