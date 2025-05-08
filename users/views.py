@@ -23,7 +23,7 @@ class CustomerSignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        messages.success(self.request, 'Customer account created successfully!')
+        # messages.success(self.request, 'Customer account created successfully!')
         return redirect('/')
 
 
@@ -39,7 +39,7 @@ class CompanySignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        messages.success(self.request, 'Company account created successfully!')
+        # messages.success(self.request, 'Company account created successfully!')
         return redirect('/')
 
 
@@ -54,7 +54,7 @@ def LoginUserView(request):
                 user = authenticate(username=user.username, password=password)
                 if user is not None:
                     login(request, user)
-                    messages.success(request, f'Welcome back, {user.username}!')
+                    # messages.success(request, f'Welcome back, {user.username}!')
                     return redirect('/')
                 else:
                     messages.error(request, 'Invalid email or password')
