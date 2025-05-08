@@ -12,4 +12,5 @@ urlpatterns = [
     path('company-requests/', v.company_requests, name='company_requests'),
     path('request/<int:request_id>/update/<str:new_status>/', v.update_request_status, name='update_request_status'),
     path('most-requested/', v.most_requested_services, name='most_requested_services'),
+    path('create/', v.ServiceCreateView.as_view(), name='service-create'),
 ]
