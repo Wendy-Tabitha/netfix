@@ -7,6 +7,7 @@ class User(AbstractUser):
     is_company = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
     email = models.CharField(max_length=100, unique=True)
+    # email = models.EmailField(unique=True)
 
 
 class Customer(models.Model):
@@ -40,4 +41,4 @@ class Company(models.Model):
         validators=[MaxValueValidator(5), MinValueValidator(0)], default=0)
 
     def __str__(self):
-        return str(self.user.id) + ' - ' + self.user.username
+        return self.user.username
