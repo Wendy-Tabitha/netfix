@@ -3,6 +3,11 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import models
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+
+# and import the ModelForm you want to use:
+from .forms import ServiceForm
 
 from users.models import Company, Customer, User
 
@@ -307,3 +312,9 @@ def most_requested_services(request):
         'search_query': search_query,
         'field_filter': field_filter
     })
+
+class ServiceCreateView(CreateView):
+    model = Service
+    form_class = ServiceForm
+    template_name = 'services/service_form.html'
+    success_url = reverse_lazy('service_list')
