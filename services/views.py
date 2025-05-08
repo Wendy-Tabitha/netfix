@@ -73,7 +73,7 @@ def create(request):
                 rating=0  # Set initial rating to 0
             )
             service.save()
-            messages.success(request, "Service created successfully!")
+            # messages.success(request, "Service created successfully!")
             return redirect('service_detail', pk=service.id)
     else:
         form = CreateNewService(company_field=company.field)
@@ -125,7 +125,7 @@ def service_detail(request, pk):
                 service_request.user = request.user
                 service_request.total_cost = service.price_hour * service_request.service_time
                 service_request.save()
-                messages.success(request, 'Service request submitted successfully!')
+                # messages.success(request, 'Service request submitted successfully!')
                 return redirect('my_requests')
         else:
             form = ServiceRequestForm()
@@ -195,7 +195,7 @@ def edit_service(request, pk):
             service.description = form.cleaned_data['description']
             service.price_hour = form.cleaned_data['price_hour']
             service.save()
-            messages.success(request, "Service updated successfully!")
+            # messages.success(request, "Service updated successfully!")
             return redirect('service_detail', pk=service.id)
     else:
         form = CreateNewService(
@@ -222,7 +222,7 @@ def delete_service(request, pk):
     
     if request.method == 'POST':
         service.delete()
-        messages.success(request, "Service deleted successfully!")
+        # messages.success(request, "Service deleted successfully!")
         return redirect('service_list')
     
     return redirect('service_detail', pk=pk)
@@ -280,7 +280,7 @@ def update_request_status(request, request_id, new_status):
             
         service_request.status = new_status
         service_request.save()
-        messages.success(request, f"Request status updated to {new_status}.")
+        # messages.success(request, f"Request status updated to {new_status}.")
     except ServiceRequest.DoesNotExist:
         messages.error(request, "Service request not found.")
     
