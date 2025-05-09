@@ -26,5 +26,6 @@ urlpatterns = [
     path('register/', include('users.urls')),
     path('customer/<slug:name>', v.customer_profile, name='customer_profile'),
     path('company/<slug:name>', v.company_profile, name='company_profile'),
-    path('logout/', LogoutView.as_view(next_page='/'), name='logout')
+    path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
+    # path('login/', auth_views.LoginView.as_view(), name='login'),
 ]

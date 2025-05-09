@@ -135,3 +135,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 AUTH_USER_MODEL = 'users.User'
+
+LOGIN_URL = '/register/'
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
