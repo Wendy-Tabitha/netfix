@@ -10,6 +10,7 @@
                     <p class="text-muted">{{ company.user.email }}</p>
                     <p><strong>Field:</strong> {{ company.field }}</p>
                     <p><strong>Rating:</strong> {{ company.rating }}</p>
+                    <hr>
                         <!-- {% for i in "12345"|make_list %}
                             {% if forloop.counter <= company.rating %}
                                 <i class="fas fa-star text-warning"></i>
@@ -35,6 +36,7 @@
                     <div class="row">
                         {% for service in services %}
                         <div class="col-md-6 mb-4">
+                            <hr>
                             <div class="card h-100">
                                 {% if service.image %}
                                 <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.name }}">
