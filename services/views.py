@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db import models
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # and import the ModelForm you want to use:
 from .forms import ServiceForm
@@ -311,10 +312,16 @@ def most_requested_services(request):
         'fields': fields,
         'search_query': search_query,
         'field_filter': field_filter
-    })
+    }) 
 
-class ServiceCreateView(CreateView):
+# @login_required
+class ServiceCreateView(LoginRequiredMixin,CreateView):
     model = Service
     form_class = ServiceForm
     template_name = 'services/service_form.html'
     success_url = reverse_lazy('service_list')
+
+    # where to send users who aren’t logged in:
+    login_url = reverse_lazy('login_user')
+    # query-string param that holds “where to go next” (defaults to "next")
+    redirect_field_name = 'next'
