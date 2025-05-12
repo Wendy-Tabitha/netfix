@@ -47,7 +47,7 @@ button:hover {
 }
 
 .content p {
-  text-align: center;
+  /* text-align: center; */
   margin: 30px 0px;
   white-space: pre-line;
 }
@@ -186,6 +186,11 @@ button:hover {
 }
 .service_info_header h5 {
   float: right;
+  text-align: center;
+}
+
+h5 {
+  text-align: center;
 }
 
 /* ============================================================================================== */
