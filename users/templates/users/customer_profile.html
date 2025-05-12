@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title">{{ customer.user.username }}</h3>
-                    <p class="text-muted">{{ customer.user.email }}</p>
+                    <p class="text-muted"><strong>Email:</strong> {{ customer.user.email }}</p>
                     {% if customer.birth %}
                     <p><strong>Birth Date:</strong> {{ customer.birth }}</p>
                     {% endif %}
