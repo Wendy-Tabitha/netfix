@@ -9,6 +9,7 @@
             <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.name }}">
             {% endif %}
             <div class="card-body">
+                <hr>
                 <h5 class="card-title">{{ service.name }}</h5>
                 <p class="card-text">{{ service.description|truncatewords:30 }}</p>
                 <p class="card-text"><strong>Price per hour:</strong> ${{ service.price_hour }}</p>
