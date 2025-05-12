@@ -10,10 +10,10 @@
             {% endif %}
             <div class="card-body">
                 <hr>
-                <h5 class="card-title">{{ service.name }}</h5>
+                <h3 class="card-title">{{ service.name }}</h3>
                 <p class="card-text"><strong>Description:</strong> {{ service.description|truncatewords:30 }}</p>
                 <p class="card-text"><strong>Price per hour:</strong> ${{ service.price_hour }}</p>
-                <p class="card-text"><small class="text-muted"><strong>Provider:</strong> {{ service.company }}</small></p>
+                <p class="card-text"><strong>By:</strong> {{ service.company }}</p>
                 {% if most_requested %}
                 <p class="card-text"><small class="text-muted">Total Requests: {{ service.request_count }}</small></p>
                 {% endif %}
