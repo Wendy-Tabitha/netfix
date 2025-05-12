@@ -7,18 +7,10 @@
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title">{{ company.user.username }}</h3>
-                    <p class="text-muted">{{ company.user.email }}</p>
+                    <p class="text-muted"><strong>Email: </strong>{{ company.user.email }}</p>
                     <p><strong>Field:</strong> {{ company.field }}</p>
                     <p><strong>Rating:</strong> {{ company.rating }}</p>
                     <hr>
-                        <!-- {% for i in "12345"|make_list %}
-                            {% if forloop.counter <= company.rating %}
-                                <i class="fas fa-star text-warning"></i>
-                            {% else %}
-                                <i class="far fa-star text-warning"></i>
-                            {% endif %}
-                        {% endfor %}
-                    </p> -->
                 </div>
             </div>
         </div>
@@ -26,7 +18,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>Services Offered</h4>
+                    <h3>Services Offered</h3>
                     {% if user == company.user %}
                     <a href="{% url 'create_service' %}" class="btn btn-primary btn-sm">Add New Service</a>
                     {% endif %}
@@ -42,8 +34,8 @@
                                 <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.name }}">
                                 {% endif %}
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ service.name }}</h5>
-                                    <p class="card-text">{{ service.description|truncatewords:20 }}</p>
+                                    <h3 class="card-title">{{ service.name }}</h3>
+                                    <p class="card-text"><strong>Description: </strong>{{ service.description|truncatewords:20 }}</p>
                                     <p class="card-text"><strong>Price per hour:</strong> ${{ service.price_hour }}</p>
                                     <a href="{% url 'service_detail' service.id %}" class="btn btn-primary">View Details</a>
                                 </div>
