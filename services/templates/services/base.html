@@ -6,11 +6,12 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Categories</h5>
+                    <h2 class="card-title">Categories</h2>
                     <div class="list-group">
                         <a href="{% url 'service_list' %}" class="list-group-item list-group-item-action {% if not category %}active{% endif %}">
                             All Services
                         </a>
+                        <br>
                         <a href="{% url 'most_requested_services' %}" class="list-group-item list-group-item-action">
                             Most Requested Services
                         </a>
