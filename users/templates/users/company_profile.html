@@ -9,7 +9,18 @@
                     <h3 class="card-title">{{ company.user.username }}</h3>
                     <p class="text-muted"><strong>Email: </strong>{{ company.user.email }}</p>
                     <p><strong>Field:</strong> {{ company.field }}</p>
-                    <p><strong>Rating:</strong> {{ company.rating }}</p>
+                    <div class="company-rating">
+                        <div class="stars">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= company.average_rating %}
+                                    <span class="star filled">★</span>
+                                {% else %}
+                                    <span class="star">☆</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="rating-value">({{ company.average_rating|floatformat:1 }}/5)</span>
+                    </div>
                     <hr>
                 </div>
             </div>
@@ -37,6 +48,18 @@
                                     <h3 class="card-title">{{ service.name }}</h3>
                                     <p class="card-text"><strong>Description: </strong>{{ service.description|truncatewords:20 }}</p>
                                     <p class="card-text"><strong>Price per hour:</strong> ${{ service.price_hour }}</p>
+                                    <div class="company-rating">
+                                        <div class="stars">
+                                            {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= service.rating %}
+                                                    <span class="star filled">★</span>
+                                                {% else %}
+                                                    <span class="star">☆</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <span class="rating-value">({{ service.rating }}/5)</span>
+                                    </div>
                                     <a href="{% url 'service_detail' service.id %}" class="btn btn-primary">View Details</a>
                                 </div>
                             </div>
