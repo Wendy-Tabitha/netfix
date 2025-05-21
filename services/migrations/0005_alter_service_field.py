@@ -6,13 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('services', '0004_alter_service_field'),
+        ("services", "0004_alter_service_field"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='service',
-            name='field',
-            field=models.CharField(choices=[('All in One', 'All in One'), ('Air Conditioner', 'Air Conditioner'), ('Carpentry', 'Carpentry'), ('Electricity', 'Electricity'), ('Gardening', 'Gardening'), ('Home Machines', 'Home Machines'), ('House Keeping', 'House Keeping'), ('Interior Design', 'Interior Design'), ('Locks', 'Locks'), ('Painting', 'Painting'), ('Plumbing', 'Plumbing'), ('Water Heaters', 'Water Heaters')], max_length=70),
+            model_name="service",
+            name="field",
+            field=models.CharField(
+                choices=[
+                    ("All in One", "All in One"),
+                    ("Air Conditioner", "Air Conditioner"),
+                    ("Carpentry", "Carpentry"),
+                    ("Electricity", "Electricity"),
+                    ("Gardening", "Gardening"),
+                    ("Home Machines", "Home Machines"),
+                    ("House Keeping", "House Keeping"),
+                    ("Interior Design", "Interior Design"),
+                    ("Locks", "Locks"),
+                    ("Painting", "Painting"),
+                    ("Plumbing", "Plumbing"),
+                    ("Water Heaters", "Water Heaters"),
+                ],
+                max_length=70,
+            ),
         ),
     ]
