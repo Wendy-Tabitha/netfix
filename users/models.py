@@ -15,30 +15,41 @@ class Customer(models.Model):
     birth = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return str(self.user.id) + ' - ' + self.user.username
+        return str(self.user.id) + " - " + self.user.username
 
 
 class Company(models.Model):
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, primary_key=True)
-    field = models.CharField(max_length=70, choices=(('Air Conditioner', 'Air Conditioner'),
-                                                     ('All in One', 'All in One'),
-                                                     ('Carpentry', 'Carpentry'),
-                                                     ('Electricity',
-                                                      'Electricity'),
-                                                     ('Gardening', 'Gardening'),
-                                                     ('Home Machines',
-                                                      'Home Machines'),
-                                                     ('House Keeping',
-                                                      'House Keeping'),
-                                                     ('Interior Design',
-                                                      'Interior Design'),
-                                                     ('Locks', 'Locks'),
-                                                     ('Painting', 'Painting'),
-                                                     ('Plumbing', 'Plumbing'),
-                                                     ('Water Heaters', 'Water Heaters')), blank=False, null=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    field = models.CharField(
+        max_length=70,
+        choices=(
+            ("Air Conditioner", "Air Conditioner"),
+            ("All in One", "All in One"),
+            ("Carpentry", "Carpentry"),
+            ("Electricity", "Electricity"),
+            ("Gardening", "Gardening"),
+            ("Home Machines", "Home Machines"),
+            ("House Keeping", "House Keeping"),
+            ("Interior Design", "Interior Design"),
+            ("Locks", "Locks"),
+            ("Painting", "Painting"),
+            ("Plumbing", "Plumbing"),
+            ("Water Heaters", "Water Heaters"),
+        ),
+        blank=False,
+        null=False,
+    )
     rating = models.IntegerField(
-        validators=[MaxValueValidator(5), MinValueValidator(0)], default=0)
+        validators=[MaxValueValidator(5), MinValueValidator(0)], default=0
+    )
 
     def __str__(self):
         return self.user.username
+
+    @property
+    def average_rating(self):
+        services = self.services.all()
+        if not services:
+            return 0
+        total_rating = sum(service.rating for service in services)
+        return total_rating / len(services)
