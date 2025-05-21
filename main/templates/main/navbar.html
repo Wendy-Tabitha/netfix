@@ -4,6 +4,7 @@
         <li>
             <a href="{% url 'service_list' %}">Services</a>
             <ul>
+                <li><a href="{% url 'most_requested_services' %}">Most Requested Services</a></li>
                 {% for field in available_fields %}
                     <li><a href="{% url 'service_field' field|slugify %}">{{ field }}</a></li>
                 {% empty %}
