@@ -1,0 +1,43 @@
+{% extends "services/base.html" %}
+
+{% block service_content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Rate Service: {{ service.name }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'rate_service' service.id %}">
+                        {% csrf_token %}
+                        <div class="rating-container text-center">
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="rating" value="5" {% if service.rating == 5 %}checked{% endif %}>
+                                <label for="star5">★</label>
+                                
+                                
+                                <input type="radio" id="star4" name="rating" value="4" {% if service.rating == 4 %}checked{% endif %}>
+                                <label for="star4">★</label>
+                                
+                                <input type="radio" id="star3" name="rating" value="3" {% if service.rating == 3 %}checked{% endif %}>
+                                <label for="star3">★</label>
+                                
+                                <input type="radio" id="star2" name="rating" value="2" {% if service.rating == 2 %}checked{% endif %}>
+                                <label for="star2">★</label>
+                                
+                                <input type="radio" id="star1" name="rating" value="1" {% if service.rating == 1 %}checked{% endif %}>
+                                <label for="star1">★</label>
+                            </div>
+                            <div class="rating-text mt-3">
+                                <p>Select your rating by clicking on the stars above</p>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-4">Submit Rating</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

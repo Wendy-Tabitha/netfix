@@ -17,14 +17,21 @@
                             <i class="fas fa-dollar-sign me-1"></i>
                             <strong>Price per hour:</strong> ${{ service.price_hour }}
                         </p>
-                        <strong>Rating:</strong> {{ service.rating }}/5<br>
-                        {% for i in "12345"|make_list %}
-                            {% if forloop.counter <= service.rating %}
-                                <i class="fas fa-star text-warning"></i>
-                            {% else %}
-                                <i class="far fa-star text-warning"></i>
+                        <div class="rating-display">
+                            <strong>Rating:</strong> {{ service.rating }}/5
+                            <div class="stars">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= service.rating %}
+                                        <span class="star filled">★</span>
+                                    {% else %}
+                                        <span class="star">★</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% if user.is_authenticated and is_customer %}
+                                <a href="{% url 'rate_service' service.id %}" class="rate-link">Rate this service</a>
                             {% endif %}
-                        {% endfor %}
+                        </div>
                         {% if service.description %}
                             <p class="card-text"><strong>Description: </strong>{{ service.description }}</p>
                         {% else %}
@@ -104,45 +111,3 @@
     </div>
 </div>
 {% endblock %} 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- 
-<p class="mb-2">
-    <i class="fas fa-dollar-sign me-1"></i>
-    <strong>Price per hour:</strong> ${{ service.price_hour }}
-</p>
-<strong>Rating:</strong> {{ service.rating }}/5<br>
-{% for i in "12345"|make_list %}
-    {% if forloop.counter <= service.rating %}
-        <i class="fas fa-star text-warning"></i>
-    {% else %}
-        <i class="far fa-star text-warning"></i>
-    {% endif %}
-{% endfor %}
-<strong class="card-text">Description: </strong>
-{% if service.description %}
-    <p class="card-text">{{ service.description }}</p>
-{% else %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle me-1"></i>
-        No description available for this service yet.
-    </div>
-{% endif %}
-<p class="mb-2"> <b>By:</b> {{ service.company.user.username }}</p> -->

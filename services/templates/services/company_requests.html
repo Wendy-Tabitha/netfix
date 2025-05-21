@@ -1,6 +1,27 @@
 {% extends "services/base.html" %}
 
 {% block service_content %}
+<style>
+    .address-cell {
+        max-width: 200px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    .table th {
+        padding: 12px 15px;
+        border-bottom: 2px solid #dee2e6;
+        text-align: left;
+        font-weight: 600;
+    }
+    .table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+</style>
+
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
@@ -34,6 +55,7 @@
                                 <thead>
                                     <tr>
                                         <th>Service Name</th>
+                                        <th>Description</th>
                                         <th>Customer</th>
                                         <th>Address</th>
                                         <th>Service Time</th>
@@ -50,8 +72,9 @@
                                     {% for request in service_requests %}
                                         <tr>
                                             <td>{{ request.service.name }}</td>
+                                            <td class="address-cell">{{ request.service.description }}</td>
                                             <td>{{ request.user.username }}</td>
-                                            <td>{{ request.address }}</td>
+                                            <td class="address-cell">{{ request.address }}</td>
                                             <td>{{ request.service_time }} hours</td>
                                             <td>${{ request.total_cost }}</td>
                                             <td>

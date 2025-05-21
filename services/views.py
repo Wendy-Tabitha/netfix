@@ -19,12 +19,12 @@ from .forms import CreateNewService, RequestServiceForm, ServiceRequestForm
 def service_list(request):
     # Get all services ordered by creation date
     services = Service.objects.all().order_by("-created_at")
-    
+
     # Get search parameters
-    search_query = request.GET.get('search', '')
-    field_filter = request.GET.get('field', '')
-    most_requested = request.GET.get('most_requested') == 'on'
-    
+    search_query = request.GET.get("search", "")
+    field_filter = request.GET.get("field", "")
+    most_requested = request.GET.get("most_requested") == "on"
+
     # Apply filters if provided
     if search_query:
         services = services.filter(name__icontains=search_query)
@@ -32,25 +32,29 @@ def service_list(request):
         services = services.filter(field=field_filter)
     if most_requested:
         # Annotate services with request count and order by it
-        services = services.annotate(
-            request_count=models.Count('requests')
-        ).order_by('-request_count')
-    
+        services = services.annotate(request_count=models.Count("requests")).order_by(
+            "-request_count"
+        )
+
     # Get unique fields for filter dropdown
-    fields = Service.objects.values_list('field', flat=True).distinct()
-    
-    return render(request, 'services/service_list.html', {
-        'services': services,
-        'fields': fields,
-        'search_query': search_query,
-        'field_filter': field_filter,
-        'most_requested': most_requested
-    })
+    fields = Service.objects.values_list("field", flat=True).distinct()
+
+    return render(
+        request,
+        "services/service_list.html",
+        {
+            "services": services,
+            "fields": fields,
+            "search_query": search_query,
+            "field_filter": field_filter,
+            "most_requested": most_requested,
+        },
+    )
 
 
 def index(request, id):
     service = Service.objects.get(id=id)
-    return render(request, 'services/single_service.html', {'service': service})
+    return render(request, "services/single_service.html", {"service": service})
 
 
 @login_required
@@ -60,194 +64,133 @@ def create(request):
         company = Company.objects.get(user=request.user)
     except Company.DoesNotExist:
         messages.error(request, "Only companies can create services.")
-        return redirect('home')
+        return redirect("home")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CreateNewService(request.POST, company_field=company.field)
         if form.is_valid():
             service = Service(
-                name=form.cleaned_data['name'],
-                description=form.cleaned_data['description'],
-                price_hour=form.cleaned_data['price_hour'],
-                field=form.cleaned_data['field'],
+                name=form.cleaned_data["name"],
+                description=form.cleaned_data["description"],
+                price_hour=form.cleaned_data["price_hour"],
+                field=form.cleaned_data["field"],
                 company=company,
-                rating=0  # Set initial rating to 0
+                rating=0,  # Set initial rating to 0
             )
             service.save()
             # messages.success(request, "Service created successfully!")
-            return redirect('service_detail', pk=service.id)
+            return redirect("service_detail", pk=service.id)
     else:
         form = CreateNewService(company_field=company.field)
 
-    return render(request, 'services/create.html', {
-        'form': form,
-        'company_field': company.field
-    })
+    return render(
+        request, "services/create.html", {"form": form, "company_field": company.field}
+    )
 
 
 def service_field(request, field):
     # Convert the field parameter to match the format in the database
-    field = field.replace('-', ' ').title()
-    
+    field = field.replace("-", " ").title()
+
     # Get all services for this field
     services = Service.objects.filter(field=field)
-    
+
     # If no services found, show a message
     if not services.exists():
-        messages.info(request, f'No services found in the {field} category.')
-        return redirect('service_list')
-    
+        messages.info(request, f"No services found in the {field} category.")
+        return redirect("service_list")
+
     # Get unique fields for filter dropdown
-    fields = Service.objects.values_list('field', flat=True).distinct()
-    
-    return render(request, 'services/service_list.html', {
-        'services': services,
-        'fields': fields,
-        'field_filter': field,
-        'search_query': ''
-    })
+    fields = Service.objects.values_list("field", flat=True).distinct()
+
+    return render(
+        request,
+        "services/service_list.html",
+        {
+            "services": services,
+            "fields": fields,
+            "field_filter": field,
+            "search_query": "",
+        },
+    )
 
 
+@login_required
 def request_service(request, id):
-    return render(request, 'services/request_service.html', {})
+    service = get_object_or_404(Service, id=id)
+
+    # Check if user is a customer
+    if not hasattr(request.user, "customer"):
+        messages.error(request, "Only customers can request services.")
+        return redirect("service_detail", pk=id)
+
+    if request.method == "POST":
+        form = ServiceRequestForm(request.POST)
+        if form.is_valid():
+            service_request = form.save(commit=False)
+            service_request.service = service
+            service_request.user = request.user
+            service_request.total_cost = (
+                service.price_hour * service_request.service_time
+            )
+            service_request.save()
+            messages.success(request, "Service request submitted successfully!")
+            return redirect("my_requests")
+    else:
+        form = ServiceRequestForm()
+
+    return render(
+        request, "services/request_service.html", {"form": form, "service": service}
+    )
 
 
 @login_required
 def service_detail(request, pk):
     try:
         service = Service.objects.get(pk=pk)
-        is_customer = hasattr(request.user, 'customer')
-        
-        if request.method == 'POST' and is_customer:
+        is_customer = hasattr(request.user, "customer")
+
+        if request.method == "POST" and is_customer:
             form = ServiceRequestForm(request.POST)
             if form.is_valid():
                 service_request = form.save(commit=False)
                 service_request.service = service
                 service_request.user = request.user
-                service_request.total_cost = service.price_hour * service_request.service_time
+                service_request.total_cost = (
+                    service.price_hour * service_request.service_time
+                )
                 service_request.save()
                 # messages.success(request, 'Service request submitted successfully!')
-                return redirect('my_requests')
+                return redirect("my_requests")
         else:
             form = ServiceRequestForm()
-        
-        return render(request, 'services/service_detail.html', {
-            'service': service,
-            'form': form,
-            'is_customer': is_customer
-        })
+
+        return render(
+            request,
+            "services/service_detail.html",
+            {"service": service, "form": form, "is_customer": is_customer},
+        )
     except Service.DoesNotExist:
-        messages.error(request, 'The requested service does not exist.')
-        return redirect('service_list')
+        messages.error(request, "The requested service does not exist.")
+        return redirect("service_list")
 
 
 @login_required
 def my_requests(request):
     # Check if user is a customer
-    if not hasattr(request.user, 'customer'):
+    if not hasattr(request.user, "customer"):
         messages.error(request, "Only customers can view service requests.")
-        return redirect('home')
-        
-    service_requests = ServiceRequest.objects.filter(user=request.user).select_related('service', 'service__company')
-    
+        return redirect("home")
+
+    service_requests = ServiceRequest.objects.filter(user=request.user).select_related(
+        "service", "service__company"
+    )
+
     # Get search parameters
-    search_query = request.GET.get('search', '')
-    status_filter = request.GET.get('status', '')
-    most_requested = request.GET.get('most_requested') == 'on'
-    
-    # Apply filters if provided
-    if search_query:
-        service_requests = service_requests.filter(service__name__icontains=search_query)
-    if status_filter:
-        service_requests = service_requests.filter(status=status_filter)
-    if most_requested:
-        # Annotate services with request count and order by it
-        service_requests = service_requests.annotate(
-            request_count=models.Count('service__requests')
-        ).order_by('-request_count')
-    
-    return render(request, 'services/my_requests.html', {
-        'service_requests': service_requests,
-        'search_query': search_query,
-        'status_filter': status_filter,
-        'most_requested': most_requested,
-        'status_choices': ServiceRequest.STATUS_CHOICES
-    })
+    search_query = request.GET.get("search", "")
+    status_filter = request.GET.get("status", "")
+    most_requested = request.GET.get("most_requested") == "on"
 
-
-@login_required
-def edit_service(request, pk):
-    service = get_object_or_404(Service, pk=pk)
-    
-    # Check if user is the owner of the service
-    if request.user != service.company.user:
-        messages.error(request, "You don't have permission to edit this service.")
-        return redirect('service_detail', pk=pk)
-    
-    if request.method == 'POST':
-        # Add the field value to the POST data if it's not already there
-        post_data = request.POST.copy()
-        if 'field' not in post_data:
-            post_data['field'] = service.company.field
-            
-        form = CreateNewService(post_data, choices=[(service.company.field, service.company.field)])
-        if form.is_valid():
-            service.name = form.cleaned_data['name']
-            service.description = form.cleaned_data['description']
-            service.price_hour = form.cleaned_data['price_hour']
-            service.save()
-            # messages.success(request, "Service updated successfully!")
-            return redirect('service_detail', pk=service.id)
-    else:
-        form = CreateNewService(
-            initial={
-                'name': service.name,
-                'description': service.description,
-                'price_hour': service.price_hour,
-                'field': service.field,
-            },
-            choices=[(service.company.field, service.company.field)]
-        )
-    
-    return render(request, 'services/edit.html', {'form': form, 'service': service})
-
-
-@login_required
-def delete_service(request, pk):
-    service = get_object_or_404(Service, pk=pk)
-    
-    # Check if user is the owner of the service
-    if request.user != service.company.user:
-        messages.error(request, "You don't have permission to delete this service.")
-        return redirect('service_detail', pk=pk)
-    
-    if request.method == 'POST':
-        service.delete()
-        # messages.success(request, "Service deleted successfully!")
-        return redirect('service_list')
-    
-    return redirect('service_detail', pk=pk)
-
-
-@login_required
-def company_requests(request):
-    # Check if user is a company
-    try:
-        company = Company.objects.get(user=request.user)
-    except Company.DoesNotExist:
-        messages.error(request, "Only companies can view service requests.")
-        return redirect('home')
-        
-    # Get all service requests for the company's services
-    service_requests = ServiceRequest.objects.filter(
-        service__company=company
-    ).select_related('service', 'user').order_by('-created_at')
-    
-    # Get search parameters
-    search_query = request.GET.get('search', '')
-    status_filter = request.GET.get('status', '')
-    most_requested = request.GET.get('most_requested') == 'on'
-    
     # Apply filters if provided
     if search_query:
         service_requests = service_requests.filter(
@@ -258,16 +201,123 @@ def company_requests(request):
     if most_requested:
         # Annotate services with request count and order by it
         service_requests = service_requests.annotate(
-            request_count=models.Count('service__requests')
-        ).order_by('-request_count')
-    
-    return render(request, 'services/company_requests.html', {
-        'service_requests': service_requests,
-        'search_query': search_query,
-        'status_filter': status_filter,
-        'most_requested': most_requested,
-        'status_choices': ServiceRequest.STATUS_CHOICES
-    })
+            request_count=models.Count("service__requests")
+        ).order_by("-request_count")
+
+    return render(
+        request,
+        "services/my_requests.html",
+        {
+            "service_requests": service_requests,
+            "search_query": search_query,
+            "status_filter": status_filter,
+            "most_requested": most_requested,
+            "status_choices": ServiceRequest.STATUS_CHOICES,
+        },
+    )
+
+
+@login_required
+def edit_service(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+
+    # Check if user is the owner of the service
+    if request.user != service.company.user:
+        messages.error(request, "You don't have permission to edit this service.")
+        return redirect("service_detail", pk=pk)
+
+    if request.method == "POST":
+        # Add the field value to the POST data if it's not already there
+        post_data = request.POST.copy()
+        if "field" not in post_data:
+            post_data["field"] = service.company.field
+
+        form = CreateNewService(
+            post_data, choices=[(service.company.field, service.company.field)]
+        )
+        if form.is_valid():
+            service.name = form.cleaned_data["name"]
+            service.description = form.cleaned_data["description"]
+            service.price_hour = form.cleaned_data["price_hour"]
+            service.save()
+            # messages.success(request, "Service updated successfully!")
+            return redirect("service_detail", pk=service.id)
+    else:
+        form = CreateNewService(
+            initial={
+                "name": service.name,
+                "description": service.description,
+                "price_hour": service.price_hour,
+                "field": service.field,
+            },
+            choices=[(service.company.field, service.company.field)],
+        )
+
+    return render(request, "services/edit.html", {"form": form, "service": service})
+
+
+@login_required
+def delete_service(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+
+    # Check if user is the owner of the service
+    if request.user != service.company.user:
+        messages.error(request, "You don't have permission to delete this service.")
+        return redirect("service_detail", pk=pk)
+
+    if request.method == "POST":
+        service.delete()
+        # messages.success(request, "Service deleted successfully!")
+        return redirect("service_list")
+
+    return redirect("service_detail", pk=pk)
+
+
+@login_required
+def company_requests(request):
+    # Check if user is a company
+    try:
+        company = Company.objects.get(user=request.user)
+    except Company.DoesNotExist:
+        messages.error(request, "Only companies can view service requests.")
+        return redirect("home")
+
+    # Get all service requests for the company's services
+    service_requests = (
+        ServiceRequest.objects.filter(service__company=company)
+        .select_related("service", "user")
+        .order_by("-created_at")
+    )
+
+    # Get search parameters
+    search_query = request.GET.get("search", "")
+    status_filter = request.GET.get("status", "")
+    most_requested = request.GET.get("most_requested") == "on"
+
+    # Apply filters if provided
+    if search_query:
+        service_requests = service_requests.filter(
+            service__name__icontains=search_query
+        )
+    if status_filter:
+        service_requests = service_requests.filter(status=status_filter)
+    if most_requested:
+        # Annotate services with request count and order by it
+        service_requests = service_requests.annotate(
+            request_count=models.Count("service__requests")
+        ).order_by("-request_count")
+
+    return render(
+        request,
+        "services/company_requests.html",
+        {
+            "service_requests": service_requests,
+            "search_query": search_query,
+            "status_filter": status_filter,
+            "most_requested": most_requested,
+            "status_choices": ServiceRequest.STATUS_CHOICES,
+        },
+    )
 
 
 @login_required
@@ -277,51 +327,76 @@ def update_request_status(request, request_id, new_status):
         # Check if the user is the company that owns the service
         if request.user != service_request.service.company.user:
             messages.error(request, "You don't have permission to update this request.")
-            return redirect('home')
-            
+            return redirect("home")
+
         service_request.status = new_status
         service_request.save()
         # messages.success(request, f"Request status updated to {new_status}.")
     except ServiceRequest.DoesNotExist:
         messages.error(request, "Service request not found.")
-    
-    return redirect('company_requests')
+
+    return redirect("company_requests")
 
 
 def most_requested_services(request):
     # Get all services annotated with request count and ordered by it
     services = Service.objects.annotate(
-        request_count=models.Count('requests')
-    ).order_by('-request_count')
-    
+        request_count=models.Count("requests")
+    ).order_by("-request_count")
+
     # Get search parameters
-    search_query = request.GET.get('search', '')
-    field_filter = request.GET.get('field', '')
-    
+    search_query = request.GET.get("search", "")
+    field_filter = request.GET.get("field", "")
+
     # Apply filters if provided
     if search_query:
         services = services.filter(name__icontains=search_query)
     if field_filter:
         services = services.filter(field=field_filter)
-    
+
     # Get unique fields for filter dropdown
-    fields = Service.objects.values_list('field', flat=True).distinct()
-    
-    return render(request, 'services/most_requested.html', {
-        'services': services,
-        'fields': fields,
-        'search_query': search_query,
-        'field_filter': field_filter
-    }) 
+    fields = Service.objects.values_list("field", flat=True).distinct()
+
+    return render(
+        request,
+        "services/most_requested.html",
+        {
+            "services": services,
+            "fields": fields,
+            "search_query": search_query,
+            "field_filter": field_filter,
+        },
+    )
+
 
 # @login_required
-class ServiceCreateView(LoginRequiredMixin,CreateView):
+class ServiceCreateView(LoginRequiredMixin, CreateView):
     model = Service
     form_class = ServiceForm
-    template_name = 'services/service_form.html'
-    success_url = reverse_lazy('service_list')
+    template_name = "services/service_form.html"
+    success_url = reverse_lazy("service_list")
 
-    # where to send users who aren’t logged in:
-    login_url = reverse_lazy('login_user')
-    # query-string param that holds “where to go next” (defaults to "next")
-    redirect_field_name = 'next'
+    # where to send users who aren't logged in:
+    login_url = reverse_lazy("login_user")
+    # query-string param that holds "where to go next" (defaults to "next")
+    redirect_field_name = "next"
+
+
+@login_required
+def rate_service(request, pk):
+    # Check if user is a customer
+    if not hasattr(request.user, "customer"):
+        messages.error(request, "Only customers can rate services.")
+        return redirect("service_detail", pk=pk)
+
+    service = get_object_or_404(Service, id=pk)
+
+    if request.method == "POST":
+        rating = request.POST.get("rating")
+        if rating:
+            service.rating = int(rating)
+            service.save()
+            messages.success(request, "Thank you for rating this service!")
+            return redirect("service_detail", pk=service.id)
+
+    return render(request, "services/rate_service.html", {"service": service})
